@@ -37,7 +37,7 @@ public class PlayerStats {
         this.uuid = uuid;
     }
 
-    public int getDeaths() {
+    public static int getDeaths() {
         return deaths;
     }
 
@@ -45,7 +45,7 @@ public class PlayerStats {
         this.deaths = deaths;
     }
 
-    public int getKills() {
+    public static int getKills() {
         return kills;
     }
 

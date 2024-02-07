@@ -2,7 +2,6 @@ package me.wacko;
 
 import me.wacko.db.Database;
 import me.wacko.listeners.Listeners;
-import me.wacko.sb.StatsScoreboard;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -25,9 +24,6 @@ public final class StatTracker extends JavaPlugin {
         }
 
         getServer().getPluginManager().registerEvents(new Listeners(database), this);
-
-        StatsScoreboard ss = new StatsScoreboard(this);
-        getServer().getPluginManager().registerEvents(ss, this);
 
     }
 
