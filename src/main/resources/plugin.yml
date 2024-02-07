@@ -1,0 +1,5 @@
+name: StatTracker
+version: '${project.version}'
+main: me.wacko.StatTracker
+api-version: 1.20
+
