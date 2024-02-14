@@ -1,6 +1,6 @@
 package me.wacko.listeners;
 
-import me.wacko.db.Database;
+import me.wacko.db.MySQL;
 import me.wacko.models.PlayerStats;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,11 +13,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class Listeners implements Listener {
+public class MySQL_Listener implements Listener {
 
-    private final Database database;
+    private final MySQL database;
 
-    public Listeners(Database database) {
+    public MySQL_Listener(MySQL database) {
         this.database = database;
     }
 

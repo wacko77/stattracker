@@ -3,3 +3,14 @@ version: '${project.version}'
 main: me.wacko.StatTracker
 api-version: 1.20
 
+softdepend:
+  - [PlaceholderAPI]
+
+commands:
+  setstats:
+    description: Sets a players individual stats
+    usage: /setstats <player> <stat> <value>
+  stats:
+    description: Displays your own stats
+    usage: /stats
+

@@ -4,7 +4,7 @@ import me.wacko.models.PlayerStats;
 
 import java.sql.*;
 
-public class Database {
+public class MySQL {
     private Connection connection;
 
     public Connection getConnection() throws SQLException {
