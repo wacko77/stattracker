@@ -15,16 +15,15 @@ public class SQLite_Listener implements Listener {
     private final StatTracker plugin;
     private SQLite sqLite;
 
-    public SQLite_Listener(StatTracker plugin) {
+    public SQLite_Listener(StatTracker plugin, SQLite sqLite) {
         this.plugin = plugin;
+        this.sqLite = sqLite;
     }
 
     @EventHandler
     public void inJoin(PlayerJoinEvent e) throws SQLException {
 
-        //if the player is new, add them to the database
         if (!e.getPlayer().hasPlayedBefore()){
-            //add the player to the database
             this.plugin.getSqLite().addPlayer(e.getPlayer());
         }
 
@@ -56,7 +55,7 @@ public class SQLite_Listener implements Listener {
         try {
             sqLite = plugin.getSqLite();
             int kills = sqLite.getPlayerKills(player.getUniqueId().toString());
-            sqLite.updatePlayerKills(player, kills + 1);
+            sqLite.updatePlayerKillsAsync(player, kills + 1);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -67,7 +66,7 @@ public class SQLite_Listener implements Listener {
         try {
             sqLite = plugin.getSqLite();
             int deaths = sqLite.getPlayerDeaths(player.getUniqueId().toString());
-            sqLite.updatePlayerDeaths(player, deaths + 1);
+            sqLite.updatePlayerDeathsAsync(player, deaths + 1);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -77,7 +76,7 @@ public class SQLite_Listener implements Listener {
         try {
             sqLite = plugin.getSqLite();
             int blocks_broken = sqLite.getPlayerBlocksBroken(player.getUniqueId().toString());
-            sqLite.updatePlayerBlocksBroken(player, blocks_broken + 1);
+            sqLite.updatePlayerBlocksBrokenAsync(player, blocks_broken + 1);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

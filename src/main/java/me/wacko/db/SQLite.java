@@ -1,14 +1,20 @@
 package me.wacko.db;
 
+import me.wacko.StatTracker;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
+import java.util.UUID;
 
 public class SQLite {
     public static Connection connection = null;
 
-    public SQLite(String path) throws SQLException {
+    private static StatTracker plugin;
+
+    public SQLite(String path, StatTracker plugin) throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+        this.plugin = plugin;
         try (Statement statement = connection.createStatement()) {
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS players (
@@ -26,11 +32,30 @@ public class SQLite {
         }
     }
 
+    public static void addPlayerAsync(Player player) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    addPlayer(player);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+    }
+
     public static void addPlayer(Player player) throws SQLException {
         String uuid = player.getUniqueId().toString();
         int kills = getPlayerKills(uuid);
         int deaths = getPlayerDeaths(uuid);
         int blocks_broken = getPlayerBlocksBroken(uuid);
+
+        if (connection == null) {
+            // Handle null connection
+            System.out.println("Connection is null.");
+            return;
+        }
 
         String sql = "INSERT OR REPLACE INTO players (uuid, kills, deaths, blocks_broken) " +
                 "VALUES (?, ?, ?, ?)";
@@ -41,6 +66,9 @@ public class SQLite {
             preparedStatement.setInt(3, deaths);
             preparedStatement.setInt(4, blocks_broken);
             preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            // Handle SQL exception
+            ex.printStackTrace();
         }
     }
 
@@ -79,6 +107,19 @@ public class SQLite {
         return 0;
     }
 
+    public static void updatePlayerKillsAsync(Player player, int kills) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    updatePlayerKills(player, kills);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+    }
+
     public static void updatePlayerKills(Player player, int kills) throws SQLException{
 
         //if the player doesn't exist, add them
@@ -93,7 +134,20 @@ public class SQLite {
         }
     }
 
-    public void updatePlayerDeaths(Player player, int deaths) throws SQLException {
+    public static void updatePlayerDeathsAsync(Player player, int deaths) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    updatePlayerDeaths(player, deaths);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+    }
+
+    public static void updatePlayerDeaths(Player player, int deaths) throws SQLException {
 
         if (!playerExists(player)){
             addPlayer(player);
@@ -108,7 +162,20 @@ public class SQLite {
 
     }
 
-    public void updatePlayerBlocksBroken(Player player, int blocks_broken) throws SQLException{
+    public static void updatePlayerBlocksBrokenAsync(Player player, int blocks_broken) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    updatePlayerBlocksBroken(player, blocks_broken);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+    }
+
+    public static void updatePlayerBlocksBroken(Player player, int blocks_broken) throws SQLException{
 
         //if the player doesn't exist, add them
         if (!playerExists(player)){

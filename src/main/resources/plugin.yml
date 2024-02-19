@@ -13,4 +13,7 @@ commands:
   stats:
     description: Displays your own stats
     usage: /stats
+  configstats:
+    description: Admin command that allows configuration of a player's stats
+    usage: /configstats
 

@@ -1,5 +1,6 @@
 package me.wacko.commands;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.wacko.StatTracker;
 import me.wacko.db.SQLite;
 import me.wacko.util.ItemStack_Util;
@@ -15,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GetStats implements CommandExecutor {
@@ -37,45 +40,37 @@ public class GetStats implements CommandExecutor {
         String user = player.getDisplayName();
 
         // Fetch and display player's stats
-        try {
 
-            int kills = sqLite.getPlayerKills(player.getUniqueId().toString());
-            int deaths = sqLite.getPlayerDeaths(player.getUniqueId().toString());
-            int blocksBroken = sqLite.getPlayerBlocksBroken(player.getUniqueId().toString());
+        List<String> lore = getStrings(player);
 
-            List<String> lore = getStrings(kills, deaths, blocksBroken);
-
-            Inventory stats = Bukkit.createInventory(player, 9*3, user + "'s Stats");
-            ItemStack display = ItemStack_Util.getItem("Stats", Material.PLAYER_HEAD, 1, player, String.valueOf(lore));
+        Inventory stats = Bukkit.createInventory(player, 9*3, user + "'s Stats");
+        ItemStack display = ItemStack_Util.getItem("Stats", Material.PLAYER_HEAD, 1, player, lore);
 
 
-            stats.setItem(13, display);
+        stats.setItem(13, display);
 
-            player.openInventory(stats);
-
-        } catch (SQLException ex) {
-            player.sendMessage("An error occurred while fetching your stats. Please check the server logs.");
-        }
+        player.openInventory(stats);
 
         return true;
     }
 
     @NotNull
-    private static List<String> getStrings(int kills, int deaths, int blocksBroken) {
-        List<String> lore = new ArrayList<>();
+    private static List<String> getStrings(Player p) {
+        List<String> lore = new ArrayList<String>();
 
-        String killsPlaceholder = "%kills%";
-        String deathsPlaceholder = "%deaths%";
-        String blocksBrokenPlaceholder = "%blocksbroken%";
+        String killsPlaceholder = "%stat-tracker_kills%";
+        String deathsPlaceholder = "%stat-tracker_deaths%";
+        String blocksBrokenPlaceholder = "%stat-tracker_blocksbroken%";
 
-        lore.add("Kills: " + killsPlaceholder);
-        lore.add("Deaths: " + deathsPlaceholder);
-        lore.add("Blocks Broken: " + blocksBrokenPlaceholder);
+        String killsValue = PlaceholderAPI.setPlaceholders(p, killsPlaceholder);
+        String deathsValue = PlaceholderAPI.setPlaceholders(p, deathsPlaceholder);
+        String blocksBrokenValue = PlaceholderAPI.setPlaceholders(p, blocksBrokenPlaceholder);
 
-        // Set placeholders with actual values
-        lore.set(0, lore.get(0).replace(killsPlaceholder, String.valueOf(kills)));
-        lore.set(1, lore.get(1).replace(deathsPlaceholder, String.valueOf(deaths)));
-        lore.set(2, lore.get(2).replace(blocksBrokenPlaceholder, String.valueOf(blocksBroken)));
+        lore.addAll(Arrays.asList(
+                "Kills: " + killsValue,
+                "Deaths: " + deathsValue,
+                "Blocks Broken: " + blocksBrokenValue));
+
         return lore;
     }
 

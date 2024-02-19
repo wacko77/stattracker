@@ -1,0 +1,8 @@
+sqlite:
+  path: plugins/StatTracker/stat_tracker.db
+mysql:
+  host: localhost
+  port: 3306
+  database: stat_tracker
+  username: root
+  password:
