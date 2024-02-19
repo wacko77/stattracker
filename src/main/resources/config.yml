@@ -5,4 +5,4 @@ mysql:
   port: 3306
   database: stat_tracker
   username: root
-  password:
+  password: ''

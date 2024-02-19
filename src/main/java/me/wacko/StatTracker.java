@@ -4,6 +4,7 @@ import me.wacko.commands.GetStats;
 import me.wacko.commands.SetStats;
 import me.wacko.db.MySQL;
 import me.wacko.db.SQLite;
+import me.wacko.listeners.MySQL_Listener;
 import me.wacko.listeners.SQLite_Listener;
 import me.wacko.placeholders.StatsExpansion;
 import org.bukkit.Bukkit;
@@ -30,9 +31,17 @@ public final class StatTracker extends JavaPlugin { ;
         config = getConfig();
         String sqlitePath = config.getString("sqlite.path");
 
-        connectToMySQL(config);
+        this.mySQL = new MySQL();
 
         try {
+            this.mySQL.initializeDatabase();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("[Stat Tracker] Could not initialize MySQL.");
+        }
+
+        try {
+
             // Ensure the plugin's data folder exists
             if (!getDataFolder().exists()) {
                 getDataFolder().mkdirs();
@@ -51,6 +60,7 @@ public final class StatTracker extends JavaPlugin { ;
         }
 
         Bukkit.getPluginManager().registerEvents(new SQLite_Listener(this, sqLite), this);
+        Bukkit.getPluginManager().registerEvents(new MySQL_Listener(mySQL), this);
 
         getCommand("setstats").setExecutor(new SetStats(this, sqLite));
         getCommand("stats").setExecutor(new GetStats(this, sqLite));
@@ -63,40 +73,8 @@ public final class StatTracker extends JavaPlugin { ;
 
     public static Plugin getInstance(StatTracker instance) {return instance;}
 
-    private void connectToMySQL(FileConfiguration config) {
-        String host = config.getString("mysql.host");
-        int port = config.getInt("mysql.port");
-        String database = config.getString("mysql.database");
-        String username = config.getString("mysql.username");
-        String password = config.getString("mysql.password");
-
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-            getLogger().info("Connected to MySQL database.");
-        } catch (SQLException e) {
-            getLogger().warning("Failed to connect to MySQL database: " + e.getMessage());
-        }
-    }
-
-    private void disconnectFromMySQL() {
-        if (connection != null) {
-            try {
-                connection.close();
-                getLogger().info("Disconnected from MySQL database.");
-            } catch (SQLException e) {
-                getLogger().warning("Failed to disconnect from MySQL database: " + e.getMessage());
-            }
-        }
-    }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
     @Override
     public void onDisable() {
-        disconnectFromMySQL();
-
         try {
             sqLite.closeConnection();
         } catch (SQLException ex) {
