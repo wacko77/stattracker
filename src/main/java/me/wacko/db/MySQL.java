@@ -1,11 +1,18 @@
 package me.wacko.db;
 
 import me.wacko.models.PlayerStats;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.*;
 
 public class MySQL {
     private Connection connection;
+
+    private FileConfiguration config;
+
+    public MySQL(FileConfiguration config) {
+        this.config = config;
+    }
 
     public Connection getConnection() throws SQLException {
 
@@ -14,16 +21,15 @@ public class MySQL {
         }
 
         //Try to connect to my MySQL database running locally
-        String url = "jdbc:mysql://localhost/stat_tracker";
-        String user = "root";
-        String password = "";
+        String host = config.getString("mysql.host");
+        int port = config.getInt("mysql.port");
+        String database = config.getString("mysql.database");
+        String user = config.getString("mysql.username");
+        String password = config.getString("mysql.password");
 
-        Connection connection = DriverManager.getConnection(url, user, password);
-
-        this.connection = connection;
-
-        System.out.println("[StatTracker] Connected to database.");
-
+        String url = "jdbc:mysql://" + host + ":" + port + "/" + database;
+        connection = DriverManager.getConnection(url, user, password);
+        System.out.println("[StatTracker] Connected to MySQL database.");
         return connection;
     }
 

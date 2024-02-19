@@ -13,7 +13,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public final class StatTracker extends JavaPlugin { ;
@@ -31,13 +30,15 @@ public final class StatTracker extends JavaPlugin { ;
         config = getConfig();
         String sqlitePath = config.getString("sqlite.path");
 
-        this.mySQL = new MySQL();
+        this.mySQL = new MySQL(config);
 
         try {
-            this.mySQL.initializeDatabase();
+            this.connection = mySQL.getConnection();
+            System.out.println("[Stat Tracker] Connected to MySQL");
+            mySQL.initializeDatabase();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("[Stat Tracker] Could not initialize MySQL.");
+            System.out.println("[Stat Tracker] Could not connect to MySQL.");
         }
 
         try {
@@ -52,7 +53,6 @@ public final class StatTracker extends JavaPlugin { ;
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Failed to connect to database! " + e.getMessage());
-            Bukkit.getPluginManager().disablePlugin(this);
         }
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
