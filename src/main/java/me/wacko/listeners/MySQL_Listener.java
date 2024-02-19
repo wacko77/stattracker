@@ -12,13 +12,17 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MySQL_Listener implements Listener {
 
     private final MySQL database;
+    private Map<String, PlayerStats> playerStatsCache;
 
     public MySQL_Listener(MySQL database) {
         this.database = database;
+        this.playerStatsCache = new HashMap<>();
     }
 
     public PlayerStats getPlayerStatsFromDatabase(Player player) throws SQLException {
@@ -38,9 +42,15 @@ public class MySQL_Listener implements Listener {
 
         Player p = event.getPlayer();
         try{
-            PlayerStats playerStats = getPlayerStatsFromDatabase(p);
-            playerStats.setLastLogin(new Date());
-            database.updatePlayerStats(playerStats);
+            PlayerStats playerStats = database.findPlayerStatsByUUID(p.getUniqueId().toString());
+            if(playerStats != null){
+                playerStats = getPlayerStatsFromDatabase(p);
+                playerStatsCache.put(p.getUniqueId().toString(), playerStats);
+                playerStats.setLastLogin(new Date());
+            }
+
+            /*
+            database.updatePlayerStats(playerStats);*/
         }catch (SQLException e){
             e.printStackTrace();
             System.out.println("[StatTracker] Could not update player stats after join.");
@@ -52,14 +62,19 @@ public class MySQL_Listener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e){
 
         Player p = e.getPlayer();
+        PlayerStats cachedStats = playerStatsCache.get(p.getUniqueId().toString());
+
         try{
-            PlayerStats playerStats = getPlayerStatsFromDatabase(p);
-            playerStats.setLastLogout(new Date());
-            database.updatePlayerStats(playerStats);
+            database.updatePlayerStats(cachedStats);
+            cachedStats.setLastLogout(new Date());
+
+            /*PlayerStats playerStats = getPlayerStatsFromDatabase(p);
+            database.updatePlayerStats(playerStats);*/
         }catch (SQLException e1){
             e1.printStackTrace();
             System.out.println("[StatTracker] Could not update player stats after quit.");
         }
+        playerStatsCache.remove(p.getUniqueId().toString());
 
     }
 
@@ -67,48 +82,62 @@ public class MySQL_Listener implements Listener {
     public void onBlockBreak(BlockBreakEvent e) {
 
         Player p = e.getPlayer();
+        PlayerStats cachedStats = playerStatsCache.get(p.getUniqueId().toString());
 
-        try {
-            PlayerStats playerStats = getPlayerStatsFromDatabase(p);
-            playerStats.setBlocksBroken(playerStats.getBlocksBroken() + 1);
-            playerStats.setBalance(playerStats.getBalance() + 0.50);
-            database.updatePlayerStats(playerStats);
-        } catch (SQLException e1) {
-            e1.printStackTrace();
-            System.out.println("[StatTracker] Could not update player stats after block break.");
+        if (cachedStats != null) {
+            cachedStats.setBlocksBroken(cachedStats.getBlocksBroken() + 1);
+            // Update the cache
+            playerStatsCache.put(p.getUniqueId().toString(), cachedStats);
+            try {
+                database.updatePlayerStats(cachedStats);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            // Fetch from MySQL if not cached
+            try {
+                PlayerStats playerStats = database.findPlayerStatsByUUID(p.getUniqueId().toString());
+                if (playerStats != null) {
+                    playerStats.setBlocksBroken(playerStats.getBlocksBroken() + 1);
+                    // Update cache
+                    playerStatsCache.put(p.getUniqueId().toString(), playerStats);
+                    database.updatePlayerStats(playerStats);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
-
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){
-
-        //see if the player was killed by another player
-        if(e.getEntity().getKiller() == null){
-            return;
+        Player player = e.getEntity();
+        String uuid = player.getUniqueId().toString();
+        PlayerStats cachedStats = playerStatsCache.get(uuid);
+        if (cachedStats != null) {
+            cachedStats.setDeaths(cachedStats.getDeaths() + 1);
+            // Update the cache
+            playerStatsCache.put(uuid, cachedStats);
+            try {
+                database.updatePlayerStats(cachedStats);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            // Fetch from MySQL if not cached
+            try {
+                PlayerStats playerStats = database.findPlayerStatsByUUID(uuid);
+                if (playerStats != null) {
+                    playerStats.setDeaths(playerStats.getDeaths() + 1);
+                    // Update cache
+                    playerStatsCache.put(uuid, playerStats);
+                    database.updatePlayerStats(playerStats);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
-
-        Player killer = e.getEntity().getKiller();
-        Player p = e.getEntity();
-
-        //Update the stats of both people
-        try{
-            PlayerStats killerStats = getPlayerStatsFromDatabase(killer);
-            PlayerStats pStats = getPlayerStatsFromDatabase(p);
-
-            killerStats.setKills(killerStats.getKills() + 1);
-            killerStats.setBalance(killerStats.getBalance() + 1.0);
-
-            pStats.setDeaths(pStats.getDeaths() + 1);
-            pStats.setBalance(pStats.getBalance() - 1.0);
-
-            database.updatePlayerStats(killerStats);
-            database.updatePlayerStats(pStats);
-
-        }catch (SQLException e1){
-            e1.printStackTrace();
-            System.out.println("[StatTracker] Could not update player stats after death.");
-        }
+      }
 
     }
-}
+

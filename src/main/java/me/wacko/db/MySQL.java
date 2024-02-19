@@ -4,14 +4,19 @@ import me.wacko.models.PlayerStats;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MySQL {
     private Connection connection;
 
     private FileConfiguration config;
 
+    private Map<String, PlayerStats> playerStatsCache;
+
     public MySQL(FileConfiguration config) {
         this.config = config;
+        this.playerStatsCache = new HashMap<>();
     }
 
     public Connection getConnection() throws SQLException {
@@ -47,25 +52,32 @@ public class MySQL {
 
     public PlayerStats findPlayerStatsByUUID(String uuid) throws SQLException {
 
-        PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM player_stats WHERE uuid = ?");
-        statement.setString(1, uuid);
+        if(playerStatsCache.containsKey(uuid)){
+            return playerStatsCache.get(uuid);
+        } else {
 
-        ResultSet resultSet = statement.executeQuery();
+            PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM player_stats WHERE uuid = ?");
+            statement.setString(1, uuid);
 
-        PlayerStats playerStats;
+            ResultSet resultSet = statement.executeQuery();
 
-        if(resultSet.next()){
+            PlayerStats playerStats = null;
 
-            playerStats = new PlayerStats(resultSet.getString("uuid"), resultSet.getInt("deaths"), resultSet.getInt("kills"), resultSet.getLong("blocks_broken"), resultSet.getDouble("balance"), resultSet.getDate("last_login"), resultSet.getDate("last_logout"));
-
+            if(resultSet.next()){
+                playerStats = new PlayerStats(
+                        resultSet.getString("uuid"),
+                        resultSet.getInt("deaths"),
+                        resultSet.getInt("kills"),
+                        resultSet.getLong("blocks_broken"),
+                        resultSet.getDouble("balance"),
+                        resultSet.getDate("last_login"),
+                        resultSet.getDate("last_logout")
+                );
+                playerStatsCache.put(uuid, playerStats);
+            }
             statement.close();
-
             return playerStats;
         }
-
-        statement.close();
-
-        return null;
     }
 
     public void createPlayerStats(PlayerStats playerStats) throws SQLException {
