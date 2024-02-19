@@ -34,22 +34,20 @@ public final class StatTracker extends JavaPlugin { ;
 
         try {
             this.connection = mySQL.getConnection();
-            System.out.println("[Stat Tracker] Connected to MySQL");
             mySQL.initializeDatabase();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("[Stat Tracker] Could not connect to MySQL.");
+            System.out.println("[StatTracker] Could not connect to MySQL.");
         }
 
         try {
 
-            // Ensure the plugin's data folder exists
             if (!getDataFolder().exists()) {
                 getDataFolder().mkdirs();
             }
 
             sqLite = new SQLite(sqlitePath, this);
-            System.out.println("[Stat Tracker] Connected to SQLite");
+            System.out.println("[StatTracker] Connected to SQLite");
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Failed to connect to database! " + e.getMessage());

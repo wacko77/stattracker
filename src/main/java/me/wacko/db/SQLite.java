@@ -42,7 +42,7 @@ public class SQLite {
                     ex.printStackTrace();
                 }
             }
-        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin));
     }
 
     public static void addPlayer(Player player) throws SQLException {
@@ -52,7 +52,6 @@ public class SQLite {
         int blocks_broken = getPlayerBlocksBroken(uuid);
 
         if (connection == null) {
-            // Handle null connection
             System.out.println("Connection is null.");
             return;
         }
@@ -117,7 +116,7 @@ public class SQLite {
                     ex.printStackTrace();
                 }
             }
-        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin));
     }
 
     public static void updatePlayerKills(Player player, int kills) throws SQLException{
@@ -144,7 +143,7 @@ public class SQLite {
                     ex.printStackTrace();
                 }
             }
-        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin));
     }
 
     public static void updatePlayerDeaths(Player player, int deaths) throws SQLException {
@@ -172,7 +171,7 @@ public class SQLite {
                     ex.printStackTrace();
                 }
             }
-        }.runTaskAsynchronously(StatTracker.getInstance(plugin)); // Replace YourPlugin with your main plugin class
+        }.runTaskAsynchronously(StatTracker.getInstance(plugin));
     }
 
     public static void updatePlayerBlocksBroken(Player player, int blocks_broken) throws SQLException{

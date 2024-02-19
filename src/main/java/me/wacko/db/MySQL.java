@@ -20,7 +20,6 @@ public class MySQL {
             return connection;
         }
 
-        //Try to connect to my MySQL database running locally
         String host = config.getString("mysql.host");
         int port = config.getInt("mysql.port");
         String database = config.getString("mysql.database");

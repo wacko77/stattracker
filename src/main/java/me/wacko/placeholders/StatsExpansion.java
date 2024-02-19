@@ -6,7 +6,6 @@ import me.wacko.db.SQLite;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Date;
 import java.sql.SQLException;
 
 public class StatsExpansion extends PlaceholderExpansion {

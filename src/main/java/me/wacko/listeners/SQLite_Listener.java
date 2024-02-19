@@ -21,10 +21,10 @@ public class SQLite_Listener implements Listener {
     }
 
     @EventHandler
-    public void inJoin(PlayerJoinEvent e) throws SQLException {
+    public void inJoin(PlayerJoinEvent e) {
 
         if (!e.getPlayer().hasPlayedBefore()){
-            this.plugin.getSqLite().addPlayer(e.getPlayer());
+            this.plugin.getSqLite().addPlayerAsync(e.getPlayer());
         }
 
     }
@@ -35,11 +35,9 @@ public class SQLite_Listener implements Listener {
         Player killer = event.getEntity().getKiller();
 
         if (killer != null) {
-            // Increment killer's kill count
             incrementKills(killer);
         }
 
-        // Increment victim's death count
         incrementDeaths(victim);
     }
 
@@ -47,7 +45,6 @@ public class SQLite_Listener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
 
-        // Increment player's blocks broken count
         incrementBlocksBroken(player);
     }
 
