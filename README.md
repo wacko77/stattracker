@@ -1,6 +1,4 @@
-An advanced stat tracking pluging that keeps track of many different aspects of a player.
-
-Features:
+# **Features**:
 - MySQL and SQLite support
 - Placeholder API support
 - Stats are displayed in an easily accessible gui
