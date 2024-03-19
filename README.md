@@ -1,3 +1,5 @@
+![Screenshot (51)](https://github.com/wacko77/stattracker/assets/46010708/06f04e6f-d7db-4c23-ba2c-6b9f25934953)
+
 # **Features**:
 - MySQL and SQLite support
 - Placeholder API support
